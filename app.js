@@ -7,8 +7,10 @@ const bodyParser = require('body-parser')
 const methodOverride = require('method-override')
 const bcrypt = require('bcryptjs')
 const db = require('./models')
+
 const Todo = db.Todo
 const User = db.User
+const routes = require('./routes')
 
 const app = express()
 const PORT = 3000
@@ -25,22 +27,7 @@ app.use(session({
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(methodOverride('_method'))
 usePassport(app)
-
-app.get('/', (req, res) => {
-  return Todo.findAll({
-    raw: true,
-    nest: true
-  })
-    .then((todos) => { return res.render('index', { todos: todos }) })
-    .catch((error) => { return res.status(422).json(error) })
-})
-
-app.get('/todos/:id', (req, res) => {
-  const id = req.params.id
-  return Todo.findByPk(id)
-    .then(todo => res.render('detail', { todo: todo.toJSON() }))
-    .catch(error => console.log(error))
-})
+app.use(routes)
 
 app.get('/users/login', (req, res) => {
   res.render('login')
